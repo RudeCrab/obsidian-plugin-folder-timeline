@@ -1,92 +1,87 @@
-# Obsidian Sample Plugin
+[中文文档](./README.zh.md)
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+# Folder Timeline
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+<div align="center" style="padding: 20px; margin: 20px 0;color: #8b5cf6;font-size: 40px;">
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
+**Turn any folder into a timeline** 
 
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and outputs a Notice on click.
-- Registers a global interval which logs 'setInterval' to the console.
+</div>
 
-## First time developing plugins?
+![Sample](./docs/images/sample.png)
 
-Quick starting guide for new plugin devs:
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `src/main.ts` to `main.js`.
-- Make changes to `src/main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+## Usage
 
-## Releasing new releases
+1. Click the timeline icon in the left ribbon, or right-click a folder in the file explorer and choose **"Open or create Timeline view in this folder"**.
+2. The plugin creates a view config file (default template, with `folder` pre-filled to the target folder) and opens the timeline view.
+3. Add `start` / `end` fields (or your custom field names configured in the template) to a note's frontmatter to put it on the timeline.
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+### View config file
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+A view config file is any regular Markdown file. When its frontmatter contains `timeline: true`, it is recognized as a view config file. You can edit and save it through the in-view form, or edit the file directly.
 
-## Adding your plugin to the community plugin list
-
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v18 (`node --version`).
-- `npm i` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint
-
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code.
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-	"fundingUrl": "https://buymeacoffee.com"
-}
+```yaml
+---
+timeline: true
+folder: ""
+recursive: false
+startField: "start"
+endField: "end"
+showFileName: true
+displayMode: "month"
+sortBy: "start"
+sortOrder: "asc"
+---
 ```
 
-If you have multiple URLs, you can also do:
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `timeline` | boolean | yes | - | The file is treated as a view config file only when this is `true`. |
+| `folder` | string | yes | - | Folder to display, a path relative to the vault root; empty string means the vault root. |
+| `recursive` | boolean | no | `false` | Whether to scan all subfolders under `folder` recursively. |
+| `startField` | string | yes | - | Start-time field name; read from each file's frontmatter. |
+| `endField` | string | yes | - | End-time field name. |
+| `showFileName` | boolean | no | `true` | Whether to show the file name on the bar. |
+| `displayMode` | `"year"` \| `"month"` \| `"day"` | no | `"month"` | Timeline scale granularity. |
+| `sortBy` | `"created"` \| `"modified"` \| `"start"` \| `"end"` | no | `"start"` | Sort key for bars (top to bottom). |
+| `sortOrder` | `"asc"` \| `"desc"` | no | `"asc"` | Sort direction: ascending / descending. |
 
-```json
-{
-	"fundingUrl": {
-		"Buy Me a Coffee": "https://buymeacoffee.com",
-		"GitHub Sponsor": "https://github.com/sponsors",
-		"Patreon": "https://www.patreon.com/"
-	}
-}
+**Time value formats**: common Obsidian frontmatter formats are supported, such as `2026-08-06`, `2026-08-06T20:30:00`, `2026-08-06 20:30`, etc. A note with a start but no end renders as a single-point event (a circular marker); a start later than the end is treated as an invalid item and summarized in the view.
+
+## Features
+
+- **Two entry points**:
+  - Ribbon icon: if the active file is a view config file, open the view directly; otherwise create a config file in its folder and open the view.
+  - File explorer folder context menu **"Open or create Timeline view in this folder"**: creates a config file for the chosen folder (`folder` is pre-filled) and opens the view; if one already exists, it opens directly.
+- **Hand-drawn timeline** (no third-party Gantt/Timeline library): year / month / day scales; the range auto-covers all items; items spanning years or months cross scale boundaries correctly.
+- **Bar interaction**: hover feedback; click / Enter (keyboard-focusable) opens the note in Obsidian; optional file name on the bar (truncated with an ellipsis when too long).
+- **Performance**: viewport rendering keeps scrolling smooth even with hundreds to thousands of files.
+- **In-view config editing**: change the form and save to write back to the config file's frontmatter and refresh immediately; or edit the config file directly and reopen the view to apply.
+- **Edge-case friendly**: broken config, missing folder, empty folder, notes without time fields, start after end — all show a clear message instead of crashing.
+- **Local-first**: no network requests, no telemetry, no remote code execution.
+
+## Installation
+
+### From Obsidian Community Plugins (recommended)
+1. Open Obsidian → Settings → Community plugins → Browse
+2. Search for "Folder Timeline" and click Install
+3. Enable the plugin
+
+### Manual
+1. Download the latest [Release](https://github.com/RudeCrab/obsidian-plugin-folder-timeline/releases)
+2. Extract and copy the folder to `<your-vault>/.obsidian/plugins/`
+3. Restart Obsidian and enable the plugin in Settings
+
+## Development
+
+```bash
+pnpm install   # install dependencies (package manager is pinned to pnpm)
+pnpm run dev   # build in watch mode
+pnpm run build # production build, outputs main.js
+pnpm run lint  # run ESLint
 ```
 
-## API Documentation
+## License
 
-See https://docs.obsidian.md
+MIT

@@ -1,8 +1,461 @@
 /*
+ * Folder Timeline — 视图样式。
+ * 步骤 3：信息层基础样式（配置摘要 / 错误区 / 空态 / 统计 / 列表）；
+ * 步骤 4：自绘时间轴（刻度区 / 网格线 / 时间条 / 模式切换工具栏）；
+ * 步骤 6：精修——键盘焦点样式、窄宽度响应式（工具栏换行、表单单列）。
+ * 颜色全部使用主题 CSS 变量，亮 / 暗主题自适应。
+ */
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.timeline-view {
+	padding: 16px;
+}
 
-If your plugin does not need CSS, delete this file.
+.timeline-view .tl-section {
+	margin-bottom: 16px;
+	padding: 12px 14px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+}
 
-*/
+.timeline-view .tl-section h3 {
+	margin: 0 0 8px;
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+/* 配置摘要：键值两列网格 */
+.timeline-view .tl-summary {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 4px 16px;
+	font-size: var(--font-ui-small);
+}
+
+.timeline-view .tl-summary-key {
+	color: var(--text-muted);
+}
+
+.timeline-view .tl-summary-value {
+	color: var(--text-normal);
+	word-break: break-all;
+}
+
+/* 错误区 */
+.timeline-view .tl-error {
+	border-color: var(--color-red);
+}
+
+.timeline-view .tl-error-item {
+	font-size: var(--font-ui-small);
+	color: var(--text-error);
+}
+
+.timeline-view .tl-error-item + .tl-error-item {
+	margin-top: 4px;
+}
+
+/* 空态 / 提示 */
+.timeline-view .tl-empty {
+	padding: 12px 14px;
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+}
+
+/* 跳过清单与条目占位列表 */
+.timeline-view .tl-skipped-list,
+.timeline-view .tl-items-list {
+	margin: 4px 0 0;
+	padding-left: 20px;
+	font-size: var(--font-ui-small);
+}
+
+.timeline-view .tl-skipped-list li,
+.timeline-view .tl-items-list li {
+	margin: 2px 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * 步骤 4：时间轴
+ * ------------------------------------------------------------------------- */
+
+/* 模式切换工具栏 */
+.timeline-view .tl-toolbar {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.timeline-view .tl-toolbar-group {
+	display: inline-flex;
+	gap: 2px;
+	padding: 2px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+}
+
+.timeline-view .tl-mode-btn {
+	appearance: none;
+	border: none;
+	background: transparent;
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	font-family: inherit;
+	padding: 2px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.timeline-view .tl-mode-btn:hover {
+	background: var(--background-modifier-hover);
+}
+
+.timeline-view .tl-mode-btn.is-active {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+/* 键盘可访问性：按钮焦点可见（模式切换 / 保存 / 返回视图） */
+.timeline-view .tl-mode-btn:focus-visible,
+.timeline-view .tl-save-btn:focus-visible {
+	outline: 2px solid var(--interactive-accent);
+	outline-offset: 2px;
+}
+
+/* Gantt 容器：内部滚动，受限高度保持视口内滚动流畅 */
+.timeline-view .tl-gantt {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	overflow: hidden;
+	margin-bottom: 16px;
+}
+
+.timeline-view .tl-gantt-scroll {
+	overflow: auto;
+	max-height: 60vh;
+}
+
+.timeline-view .tl-gantt-inner {
+	position: relative;
+	min-width: 100%;
+	box-sizing: border-box;
+	padding: 0 12px;
+}
+
+/* 刻度区（sticky 顶部常驻；overflow hidden 裁剪刻度标签，
+   避免最后一个刻度标签右半身溢出内容区撑大滚动区域） */
+.timeline-view .tl-gantt-axis {
+	position: sticky;
+	top: 0;
+	z-index: 3;
+	height: 26px;
+	background: var(--background-primary);
+	border-bottom: 1px solid var(--background-modifier-border);
+	overflow: hidden;
+}
+
+.timeline-view .tl-gantt-tick {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 0;
+}
+
+.timeline-view .tl-gantt-tick::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 1px;
+	background: var(--background-modifier-border);
+}
+
+.timeline-view .tl-gantt-tick-label {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translate(-50%, -50%);
+	padding: 0 2px;
+	font-size: 10px;
+	line-height: 1.4;
+	color: var(--text-muted);
+	white-space: nowrap;
+	pointer-events: none;
+}
+
+/* day 模式：月份分组带（刻度区顶部一层，本地化月份名，跨年 / 首组带年份）+
+   每月分隔竖线（带右边缘）；背景区分相邻月份，年 / 月信息不再重复到每一天。 */
+.timeline-view .tl-gantt-month-band {
+	position: absolute;
+	top: 0;
+	height: 18px;
+	border-right: 1px solid var(--background-modifier-border);
+	background: var(--background-secondary);
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+	pointer-events: none;
+	z-index: 1;
+}
+
+.timeline-view .tl-gantt-month-label {
+	padding: 0 6px;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--text-normal);
+	white-space: nowrap;
+}
+
+/* day 模式每日刻度：仅「日」数字，定位在刻度区底部（月份分组带下方），
+   不再显示年 / 月，拥挤显著缓解。 */
+.timeline-view .tl-gantt-day-num {
+	top: auto;
+	bottom: 2px;
+	left: 0;
+	transform: translateX(-50%);
+	color: var(--text-muted);
+}
+
+/* 主体：网格竖线 + 虚拟滚动行 */
+.timeline-view .tl-gantt-body {
+	position: relative;
+}
+
+.timeline-view .tl-gantt-grid {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.timeline-view .tl-gantt-gridline {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 1px;
+	background: color-mix(in srgb, var(--background-modifier-border) 55%, transparent);
+}
+
+.timeline-view .tl-gantt-rows {
+	position: absolute;
+	inset: 0;
+}
+
+.timeline-view .tl-gantt-row {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 30px;
+	border-bottom: 1px solid color-mix(in srgb, var(--background-modifier-border) 35%, transparent);
+}
+
+/* 时间条 */
+.timeline-view .tl-gantt-bar {
+	position: absolute;
+	top: 4px;
+	height: 22px;
+	min-width: 6px;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	/* overflow 可见：窄条文件名以浮层显示在条右侧（不裁剪） */
+	overflow: visible;
+	border-radius: 4px;
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	font-size: 11px;
+	cursor: pointer;
+	transition: filter 0.15s ease, box-shadow 0.15s ease;
+}
+
+.timeline-view .tl-gantt-bar:hover {
+	filter: brightness(1.18);
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 40%, transparent);
+}
+
+.timeline-view .tl-gantt-bar:focus-visible {
+	outline: 2px solid var(--interactive-accent);
+	outline-offset: 2px;
+}
+
+/* 单点事件：圆形标记 */
+.timeline-view .tl-gantt-bar-point {
+	border-radius: 50%;
+}
+
+.timeline-view .tl-gantt-bar-point:hover {
+	transform: scale(1.25);
+}
+
+/* 条内文件名：撑满条宽，过长省略号截断（文字用主题色保证亮暗对比） */
+.timeline-view .tl-gantt-bar-label {
+	position: absolute;
+	inset: 0;
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding: 0 6px;
+	color: var(--text-on-accent);
+}
+
+/* 条外文件名浮层（窄条 / 单点）：显示在条右侧，亮色模式深字、暗色模式白字；
+   bar 与文件名视为整体可点区域（点击浮层同样跳转） */
+.timeline-view .tl-gantt-bar-label-out {
+	position: absolute;
+	inset: auto auto auto 100%;
+	top: 50%;
+	transform: translateY(-50%);
+	margin-left: 6px;
+	max-width: 240px;
+	height: 18px;
+	line-height: 18px;
+	padding: 0 6px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: color-mix(in srgb, var(--background-primary) 90%, transparent);
+	color: var(--text-normal);
+	cursor: pointer;
+}
+
+.timeline-view .tl-gantt-bar:hover .tl-gantt-bar-label-out {
+	border-color: color-mix(in srgb, var(--interactive-accent) 60%, transparent);
+	background: color-mix(in srgb, var(--interactive-accent) 12%, var(--background-primary));
+}
+
+/* 条右侧空间不足时翻转到左侧（右对齐，紧贴条的左边） */
+.timeline-view .tl-gantt-bar-label-out-left {
+	top: 50%;
+	transform: translateY(-50%);
+	left: auto;
+	right: 100%;
+	margin-left: 0;
+	margin-right: 6px;
+	text-align: right;
+}
+
+/* ---------------------------------------------------------------------------
+ * 配置编辑表单
+ * ------------------------------------------------------------------------- */
+
+.timeline-view .tl-config-form .tl-form-row {
+	display: grid;
+	/* 固定 label 列宽，使所有行的输入框起点对齐（各行为独立 grid，max-content 无法跨行统一） */
+	grid-template-columns: 90px 1fr;
+	gap: 6px 14px;
+	align-items: center;
+	margin-bottom: 6px;
+	font-size: var(--font-ui-small);
+}
+
+.timeline-view .tl-config-form .tl-form-input {
+	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+}
+
+/* 复选框：强制原生外观（防止主题 appearance:none 使其不可见），
+   固定尺寸 + 主题色，label 关联后点击文字也能切换 */
+.timeline-view .tl-config-form input[type="checkbox"].tl-form-check {
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	appearance: auto;
+	-webkit-appearance: auto;
+	accent-color: var(--interactive-accent);
+	cursor: pointer;
+	justify-self: start;
+}
+
+.timeline-view .tl-config-form .tl-form-row label {
+	color: var(--text-muted);
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+/* displayMode 单选框组：隐藏原生 radio，复用视图工具栏按钮样式
+   （.tl-toolbar-group + .tl-mode-btn），选中态由 radio:checked 联动 */
+.timeline-view .tl-config-form .tl-mode-radio {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: 0;
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* 单选框组只取三个按钮的内容宽度，不被 1fr 列拉伸占满整行 */
+.timeline-view .tl-config-form .tl-toolbar-group {
+	justify-self: start;
+}
+
+.timeline-view .tl-config-form .tl-mode-radio:checked + .tl-mode-btn {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.timeline-view .tl-config-form label.tl-mode-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	user-select: none;
+}
+
+.timeline-view .tl-config-form .tl-form-actions {
+	margin-top: 10px;
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.timeline-view .tl-save-btn {
+	cursor: pointer;
+}
+
+.timeline-view .tl-toolbar-hint {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+ * 响应式：窄宽度（移动端 / 侧边栏）适配
+ * ------------------------------------------------------------------------- */
+
+@media (max-width: 480px) {
+	.timeline-view {
+		padding: 12px;
+	}
+
+	/* 配置表单单列：标签在上、控件在下，避免横向挤压 */
+	.timeline-view .tl-config-form .tl-form-row {
+		grid-template-columns: 1fr;
+		gap: 4px 0;
+	}
+
+	.timeline-view .tl-config-form .tl-form-row label {
+		text-align: left;
+	}
+}
+
+/* 配置文件原文视图 */
+.timeline-view .tl-config-view {
+	margin: 0;
+	padding: 12px 14px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	background: var(--background-primary);
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+	line-height: 1.5;
+	overflow: auto;
+	max-height: 60vh;
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+

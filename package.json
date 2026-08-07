@@ -1,17 +1,22 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "folder-timeline",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "Render Markdown notes in a folder as a timeline/Gantt view, configured via view config files.",
 	"main": "main.js",
-	"type": "module",
+	"packageManager": "pnpm@11.20.0",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"lint": "eslint ."
 	},
-	"keywords": [],
-	"license": "0-BSD",
+	"keywords": [
+		"obsidian",
+		"obsidian-plugin",
+		"timeline",
+		"gantt"
+	],
+	"license": "MIT",
 	"devDependencies": {
 		"@eslint/js": "^9.39.4",
 		"@types/node": "^22.15.17",

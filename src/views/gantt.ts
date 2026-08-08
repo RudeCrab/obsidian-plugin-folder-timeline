@@ -29,7 +29,6 @@ import {
 	baseSpanForMode,
 	computeRange,
 	DAY_STEP,
-	MS_DAY,
 	nextTick,
 	selectTickStep,
 	tickLabel,
@@ -374,7 +373,10 @@ export class GanttRenderer {
 	 *  每日刻度仅显示日数字（落在分组带下方，不再重复年月）。 */
 	private renderDayGroupedTicks(layout: GanttLayout, leftMs: number, rightMs: number): void {
 		this.axisEl.style.setProperty('height', `${GANTT_AXIS_HEIGHT + MONTH_BAND_HEIGHT}px`);
-		const dayStep: TickStep = { days: 1, approxMs: MS_DAY };
+		// 遵守已选刻度档位：进入本分支的 step 必为 days 家族（1/2/5/10/15 天），
+		// 它已通过 selectTickStep 的 minTickPx 间距校验，按实际档位绘制每日刻度，
+		// 避免写死 days:1 导致放大初期日数字间距 < 66px 而挤压重叠。
+		const dayStep: TickStep = layout.step;
 
 		// 1) 月份分组带：从包含 leftMs 的月 1 日起，逐月直到包含 rightMs 的月。
 		//    标签统一为「年-月」（如 1927-7），每月均显示年份，纯数字无语言依赖。

@@ -1,7 +1,7 @@
 {
 	"id": "folder-timeline",
 	"name": "Folder Timeline",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"minAppVersion": "1.13.0",
 	"description": "Turn any folder into a Timeline/Gantt view. 把任意目录变成时间轴/甘特图.",
 	"author": "RudeCrab",

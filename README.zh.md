@@ -1,8 +1,6 @@
 [English](./README.md)
 
-# Folder Timeline（文件夹时间线）
-
-<div align="center" style="padding: 20px; margin: 20px 0;color: #8b5cf6;font-size: 40px;">
+<div align="center" style="padding: 5px; margin: 5px 0;color: #8b5cf6;font-size: 40px;">
 
 **把任意目录变成时间轴** 
 
@@ -51,9 +49,6 @@ sortOrder: "asc"
 
 ## 功能
 
-- **两个入口**：
-  - Ribbon 图标按钮：活动文件是视图配置文件 → 直接打开视图；否则在其所在目录新建配置文件并打开；
-  - 文件管理器目录右键菜单「在此目录打开或创建 Timeline 视图」：为所选目录新建配置文件（`folder` 自动预填）并打开；目录下已有配置文件则直接打开。
 - **自绘时间轴**（未使用任何现成 Gantt/Timeline 库）：按年 / 月 / 日三种刻度；时间轴范围自动覆盖全部条目；条目跨年 / 跨月正确跨越刻度。
 - **时间条交互**：hover 反馈；点击 / 回车（键盘可聚焦）在 Obsidian 中打开对应笔记；可选在条上显示文件名（过长省略号截断）。
 - **性能**：数百至上千文件采用可视区域渲染，滚动流畅。
@@ -79,9 +74,9 @@ sortOrder: "asc"
 
 ```bash
 pnpm install   # 安装依赖（包管理器固定为 pnpm）
-pnpm run dev   # 监听模式构建
-pnpm run build # 生产构建，产出 main.js
-pnpm run lint  # ESLint 检查
+pnpm dev   # 监听模式构建
+pnpm build # 生产构建，产出 main.js
+pnpm lint  # ESLint 检查
 ```
 
 ## License

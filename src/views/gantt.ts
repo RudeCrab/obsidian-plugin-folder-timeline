@@ -11,8 +11,9 @@
  * - 刻度按每屏跨度自适应细化（刻度档位池覆盖分钟~200 年，标签按粒度自适应）；
  * - 每个有效条目渲染为横向时间条：x / 宽度由 start / end 与统一比例尺决定，
  *   跨年 / 跨月自然跨越（连续时间轴，不做分段截断）；
- * - showFileName：宽条（≥60px）文件名显示在条内（省略号截断）；窄条 / 单点
- *   文件名显示在条的右侧浮层（bar 与文件名视为整体可点），悬停还有原生 title；
+ * - showFileName：文件名能完整放进条内时显示在条内（短条 / 宽条皆然，省略号兜底）；
+ *   放不下时（窄条 / 单点 / 中等长度条均适用）显示在条的右侧浮层（bar 与文件名视为
+ *   整体可点），悬停还有原生 title；长文件名被截断在条内的问题已根除；
  * - 交互：hover 高亮；点击 / 键盘 Enter、Space 打开对应文件；
  * - 性能：刻度、网格线与时间条行均按可视区域虚拟渲染，行高固定
  *   （GANTT_ROW_HEIGHT），上千条目滚动流畅；ResizeObserver 自适应宽度；
@@ -45,8 +46,13 @@ const MONTH_BAND_HEIGHT = 18;
 const PAD_X = 12;
 /** 单点 / 极窄时间条的最小可交互宽度。 */
 const MIN_BAR_WIDTH = 6;
-/** 文件名显示在条内的最小宽度（更窄则显示在条右侧浮层）。 */
+/** 文件名「尝试」放在条内的最小宽度：更窄（窄条 / 单点）一律放条外浮层；
+ *  更宽则再实测文件名能否完整放进条内，放得下才放条内（避免中等条截断长文件名）。 */
 const MIN_LABEL_WIDTH = 60;
+/** 条内文件名 label 的左右内边距合计（styles.css 中 .tl-gantt-bar-label 为 padding: 0 6px）。 */
+const BAR_LABEL_PAD = 12;
+/** 文本测量安全余量（px）：吸收 canvas 字体近似的微小偏差，避免「刚好放得下」被判截断。 */
+const LABEL_FIT_MARGIN = 2;
 /** 可视区上下外扩行数（缓冲，避免快速滚动露白）。 */
 const OVERSCAN_ROWS = 6;
 /** 刻度可视区左右外扩像素。 */
@@ -108,6 +114,33 @@ function formatTooltip(item: TimelineItem, startField: string, endField: string)
 
 function clamp(value: number, min: number, max: number): number {
 	return Math.min(max, Math.max(min, value));
+}
+
+/** 复用的 canvas 2D 上下文（null = 无法测量，如非浏览器环境；undefined = 尚未初始化）。 */
+let textMeasureCtx: CanvasRenderingContext2D | null | undefined;
+/** 获取 canvas 2D 上下文，基准字体 11px，与条内 label（.tl-gantt-bar 的 font-size）对齐。 */
+function getTextMeasureCtx(): CanvasRenderingContext2D | null {
+	if (textMeasureCtx !== undefined) return textMeasureCtx;
+	if (typeof document === 'undefined' || document.body === null) {
+		textMeasureCtx = null;
+		return null;
+	}
+	// 用 Obsidian 的 createEl 创建临时 canvas 取 2D 上下文后立即移出 DOM（仅用于测量）。
+	const canvas = document.body.createEl('canvas');
+	textMeasureCtx = canvas.getContext('2d');
+	canvas.remove();
+	if (textMeasureCtx !== null) {
+		// 与 .tl-gantt-bar 的 font-size: 11px 对齐；字体族取系统 UI 字体近似。
+		textMeasureCtx.font = '11px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+	}
+	return textMeasureCtx;
+}
+
+/** 测量文件名文本像素宽度；无法测量时返回 -1，调用方应回退到「条外」策略。 */
+function measureTextWidth(text: string): number {
+	const ctx = getTextMeasureCtx();
+	if (ctx === null) return -1;
+	return ctx.measureText(text).width;
 }
 
 /** 返回给定时间所在月份的下个月 1 日 00:00（毫秒），用于 day 模式月份分组带跨月计算。 */
@@ -412,12 +445,20 @@ export class GanttRenderer {
 			bar.style.setProperty('left', `${barLeft}px`);
 			bar.style.setProperty('width', `${width}px`);
 			if (showFileName) {
-				if (width >= MIN_LABEL_WIDTH) {
-					// 宽条：文件名在条内省略号截断
-					bar.createSpan({ cls: 'tl-gantt-bar-label', text: item.title });
+				const title = item.title;
+				// 实测文件名文本宽度：能完整放进条内（扣掉左右 padding 与安全余量）才放条内，
+				// 否则放条外浮层——根除中等长度条把长文件名截断在条内的问题。
+				const textW = measureTextWidth(title);
+				const fitsInside =
+					textW >= 0 &&
+					width >= MIN_LABEL_WIDTH &&
+					textW <= width - BAR_LABEL_PAD - LABEL_FIT_MARGIN;
+				if (fitsInside) {
+					bar.createSpan({ cls: 'tl-gantt-bar-label', text: title });
 				} else {
-					// 窄条 / 单点：文件名浮层。优先放在条右侧；右侧空间不足（贴近内容右缘，
-					// 如最后一个 bar）时翻转到左侧，确保文件名始终可见（悬停 title 兜底）。
+					// 条外浮层（窄条 / 单点 / 条内放不下的中等条）：优先放条右侧；
+					// 右侧空间不足（贴近内容右缘，如最后一个 bar）时翻转到左侧，
+					// 确保文件名始终可见（悬停 title 兜底）。
 					const rightRoom = layout.contentWidth - barRight;
 					const leftRoom = barLeft;
 					const placeLeft = rightRoom < 40 && leftRoom >= 40;
@@ -427,7 +468,7 @@ export class GanttRenderer {
 							cls: placeLeft
 								? 'tl-gantt-bar-label tl-gantt-bar-label-out tl-gantt-bar-label-out-left'
 								: 'tl-gantt-bar-label tl-gantt-bar-label-out',
-							text: item.title,
+							text: title,
 						});
 						label.style.setProperty('max-width', `${Math.min(240, room - 6)}px`);
 					}

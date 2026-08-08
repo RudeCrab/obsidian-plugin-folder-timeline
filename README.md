@@ -1,8 +1,6 @@
 [中文文档](./README.zh.md)
 
-# Folder Timeline
-
-<div align="center" style="padding: 20px; margin: 20px 0;color: #8b5cf6;font-size: 40px;">
+<div align="center" style="padding: 5px; margin: 5px 0;color: #8b5cf6;font-size: 40px;">
 
 **Turn any folder into a timeline** 
 
@@ -13,7 +11,7 @@
 
 ## Usage
 
-1. Click the timeline icon in the left ribbon, or right-click a folder in the file explorer and choose **"Open or create Timeline view in this folder"**.
+1. Click the timeline icon in the left ribbon, or right-click a folder in the file explorer and choose "Open or create Timeline view in this folder".
 2. The plugin creates a view config file (default template, with `folder` pre-filled to the target folder) and opens the timeline view.
 3. Add `start` / `end` fields (or your custom field names configured in the template) to a note's frontmatter to put it on the timeline.
 
@@ -51,9 +49,6 @@ sortOrder: "asc"
 
 ## Features
 
-- **Two entry points**:
-  - Ribbon icon: if the active file is a view config file, open the view directly; otherwise create a config file in its folder and open the view.
-  - File explorer folder context menu **"Open or create Timeline view in this folder"**: creates a config file for the chosen folder (`folder` is pre-filled) and opens the view; if one already exists, it opens directly.
 - **Hand-drawn timeline** (no third-party Gantt/Timeline library): year / month / day scales; the range auto-covers all items; items spanning years or months cross scale boundaries correctly.
 - **Bar interaction**: hover feedback; click / Enter (keyboard-focusable) opens the note in Obsidian; optional file name on the bar (truncated with an ellipsis when too long).
 - **Performance**: viewport rendering keeps scrolling smooth even with hundreds to thousands of files.
@@ -77,9 +72,9 @@ sortOrder: "asc"
 
 ```bash
 pnpm install   # install dependencies (package manager is pinned to pnpm)
-pnpm run dev   # build in watch mode
-pnpm run build # production build, outputs main.js
-pnpm run lint  # run ESLint
+pnpm dev   # build in watch mode
+pnpm build # production build, outputs main.js
+pnpm lint  # run ESLint
 ```
 
 ## License

@@ -48,10 +48,10 @@ const en = {
 	'view.error': 'Error',
 	'view.emptyFolder': 'No Markdown files under "{{folder}}".',
 	'view.fileStats': 'File stats',
-	'view.statsFormat': '{{total}} files, {{valid}} valid entries, {{skipped}} skipped',
+	'view.statsFormat': '{{total}} files, {{valid}} valid, {{skipped}} skipped',
 	'view.skippedFiles': 'Skipped Files ({{count}})',
 	'view.unknownReason': 'unknown reason',
-	'view.noValidItems': 'No valid entries to render (all files skipped; see reasons above).',
+	'view.noValidItems': 'No valid files to render (all files skipped; see reasons above).',
 	'view.cannotOpenFile': 'Cannot open file: {{error}}',
 	'view.vaultRoot': 'vault root',
 	'view.vaultRootParens': '(vault root)',
@@ -95,6 +95,12 @@ const en = {
 	'build.startAfterEnd': 'Start time is after end time',
 
 	// 设置
+	// Base 视图
+	'base.noEntries': 'No entries found. Check the Base query configuration.',
+	'base.configRequired': 'Please configure both Start Field and End Field in the view options to display the timeline.',
+	'base.startFieldPlaceholder': 'Select start date property...',
+	'base.endFieldPlaceholder': 'Select end date property...',
+
 	'settings.language': 'Language',
 	'settings.languageDesc': 'Interface language. "Follow system" uses your Obsidian / app language.',
 	'settings.langSystem': 'Follow system',
@@ -146,10 +152,10 @@ const zh: Record<I18nKey, string> = {
 	'view.error': '错误',
 	'view.emptyFolder': '目录「{{folder}}」下没有 Markdown 文件。',
 	'view.fileStats': '文件统计',
-	'view.statsFormat': '共 {{total}} 个文件，{{valid}} 个有效条目，{{skipped}} 个被跳过',
+	'view.statsFormat': '共 {{total}} 个文件，{{valid}} 个有效，{{skipped}} 个跳过',
 	'view.skippedFiles': '被跳过的文件（{{count}}）',
 	'view.unknownReason': '未知原因',
-	'view.noValidItems': '没有可渲染的有效条目（全部文件被跳过，见上方原因）。',
+	'view.noValidItems': '没有可渲染的有效文件（全部文件被跳过，见上方原因）。',
 	'view.cannotOpenFile': '无法打开文件：{{error}}',
 	'view.vaultRoot': 'vault 根目录',
 	'view.vaultRootParens': '（vault 根目录）',
@@ -187,6 +193,11 @@ const zh: Record<I18nKey, string> = {
 	'build.startNotDate': '开始时间字段「{{field}}」无法解析为日期（值：{{value}}）',
 	'build.endNotDate': '结束时间字段「{{field}}」无法解析为日期（值：{{value}}）',
 	'build.startAfterEnd': '开始时间晚于结束时间',
+
+	'base.noEntries': '未找到条目，请检查 Base 查询配置。',
+	'base.configRequired': '请在视图选项中配置「开始字段」与「结束字段」以显示时间轴。',
+	'base.startFieldPlaceholder': '选择开始时间属性...',
+	'base.endFieldPlaceholder': '选择结束时间属性...',
 
 	'settings.language': '语言',
 	'settings.languageDesc': '界面语言。「跟随系统」使用你的 Obsidian / 系统语言。',

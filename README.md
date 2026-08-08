@@ -11,9 +11,17 @@
 
 ## Usage
 
-1. Click the timeline icon in the left ribbon, or right-click a folder in the file explorer and choose "Open or create Timeline view in this folder".
-2. The plugin creates a view config file (default template, with `folder` pre-filled to the target folder) and opens the timeline view.
-3. Add `start` / `end` fields (or your custom field names configured in the template) to a note's frontmatter to put it on the timeline.
+**Folder Mode** — treat a folder as a timeline:
+
+1. Click the timeline icon in the left ribbon, or right-click a folder in the file explorer.
+2. The plugin creates a view config file and opens the timeline.
+3. Add `start` / `end` fields to any note's frontmatter to put it on the axis.
+
+**Base Mode** — embed a timeline inside any Obsidian Base:
+
+1. Open a `.base` file → **Layout** → **+ Add View** → **Timeline**.
+2. In the view options, pick your **Start date property** and **End date property**.
+3. The timeline renders instantly. Filtering, sorting, and grouping are all handled by Base — you only configure the time fields.
 
 ### View config file
 
@@ -49,10 +57,11 @@ sortOrder: "asc"
 
 ## Features
 
-- **Hand-drawn timeline** (no third-party Gantt/Timeline library): year / month / day scales; the range auto-covers all items; items spanning years or months cross scale boundaries correctly.
-- **Bar interaction**: hover feedback; click / Enter (keyboard-focusable) opens the note in Obsidian; optional file name on the bar (truncated with an ellipsis when too long).
-- **Performance**: viewport rendering keeps scrolling smooth even with hundreds to thousands of files.
-- **In-view config editing**: change the form and save to write back to the config file's frontmatter and refresh immediately; or edit the config file directly and reopen the view to apply.
+- **Obsidian Base integration** — add *Timeline* as a native Base view type alongside Table, Board, Calendar, and Gallery. Use Base's built-in filters, sorts, and grouping; the timeline just renders your data.
+- **Hand-drawn timeline** (zero third-party Gantt/Timeline dependencies): year / month / day scales; range auto-covers all items; bars correctly cross year and month boundaries.
+- **Bar interaction**: hover feedback; click / Enter (keyboard-focusable) opens the note in Obsidian; optional file name on the bar when space permits.
+- **Performance**: viewport rendering keeps hundreds to thousands of files scrolling at 60 fps.
+- **In-view config editing** (folder mode): edit the form to write back to the config file's frontmatter and refresh instantly.
 - **Edge-case friendly**: broken config, missing folder, empty folder, notes without time fields, start after end — all show a clear message instead of crashing.
 - **Local-first**: no network requests, no telemetry, no remote code execution.
 
